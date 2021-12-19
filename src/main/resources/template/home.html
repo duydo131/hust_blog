@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Trang chủ</title>
+    <style>
+        button {
+            background-color: #04AA6D;
+            color: white;
+            padding: 14px 20px;
+            margin: 8px 0;
+            border: none;
+            cursor: pointer;
+            width: 100px;
+
+        }
+
+        button:hover {
+            opacity: 0.8;
+        }
+    </style>
+</head>
+<body>
+    <Button type="submit" onclick="javascript:sendGetUser()">all user</Button>
+    <Button type="submit" onclick="javascript:logout()">Log out</Button>
+    <div id="users"></div>
+
+    <script type="text/javascript" language="javascript">
+
+        function sendGetUser(){
+        
+            URL = "http://127.0.0.1:8081/api/user";
+
+            var request = new XMLHttpRequest()
+
+            request.open('GET', URL, false)
+
+            request.onload = function () {
+                if(this.readyState === 4 && this.status === 200){
+
+                    var data = JSON.parse(this.response)
+                    document.getElementById("users").innerHTML = JSON.stringify(data.content);
+                }else{
+                    alert("authorization 401!!!")
+                }
+            }
+            var token = window.localStorage.getItem("access_token");
+            request.setRequestHeader('Authorization', 'Bearer ' + token);                
+            request.send()
+        }
+
+        function logout(){
+            window.localStorage.removeItem("access_token");
+            location.replace("./login.html");
+        }
+    </script>
+</body>
+</html>

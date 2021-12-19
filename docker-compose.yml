@@ -1,0 +1,174 @@
+version: '3.1'
+
+networks:
+  sb_net:
+    driver: bridge
+
+services:
+
+#  mysql:
+#    image: mysql
+#    container_name: db_spring
+#    command: --default-authentication-plugin=mysql_native_password
+#    restart: always
+#    environment:
+#      MYSQL_ROOT_PASSWORD: dotheduy
+#    volumes:
+#      - ./mysql-data:/var/lib/mysql
+#    ports:
+#      - "3306:3306"
+#    networks:
+#      - sb_net
+
+  postgres:
+    image: debezium/postgres:12
+    hostname: postgres
+    container_name: postgres-demo
+    ports:
+      - "5432:5432"
+    environment:
+      POSTGRES_USER: postgres-user
+      POSTGRES_PASSWORD: postgres-pw
+      POSTGRES_DB: hust_blog
+    volumes:
+      - ./postgres/custom-config.conf:/etc/postgresql/postgresql.conf
+    networks:
+      - sb_net
+    command: postgres -c config_file=/etc/postgresql/postgresql.conf
+
+  # api:
+  #   build:
+  #     context: .
+  #     dockerfile: Dockerfile
+  #   container_name: api-demo
+  #   environment:
+  #     DB_HOST: postgres
+  #     KAFKA_HOST: kafka:9092
+  #   ports:
+  #     - "8080:8080"
+  #   depends_on:
+  #     - postgres
+  #     - kafka
+  #   networks:
+  #     - sb_net
+#
+#  zookeeper:
+#    image: confluentinc/cp-zookeeper:latest
+#    hostname: zookeeper
+#    container_name: zookeeper-demo
+#    networks:
+#      - sb_net
+#    ports:
+#      - "2181:2181"
+#    environment:
+#      ZOOKEEPER_CLIENT_PORT: 2181
+#      ZOOKEEPER_TICK_TIME: 2000
+#
+#  kafka:
+#    image: confluentinc/cp-kafka:latest
+#    hostname: kafka
+#    container_name: kafka-demo
+#    depends_on:
+#      - zookeeper
+#    networks:
+#      - sb_net
+#    ports:
+#      - "9092:9092"
+#      - "29092:29092"
+#    environment:
+#      KAFKA_BROKER_ID: 1
+#      KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181
+#      KAFKA_ADVERTISED_HOST_NAME: kafka
+#      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: PLAINTEXT:PLAINTEXT,PLAINTEXT_HOST:PLAINTEXT
+#      KAFKA_LISTENERS: PLAINTEXT://:9092,PLAINTEXT_HOST://0.0.0.0:29092
+#      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://kafka:9092, PLAINTEXT_HOST://localhost:29092
+#      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
+#      KAFKA_GROUP_INITIAL_REBALANCE_DELAY_MS: 0
+#      KAFKA_TRANSACTION_STATE_LOG_MIN_ISR: 1
+#      KAFKA_TRANSACTION_STATE_LOG_REPLICATION_FACTOR: 1
+#    volumes:
+#      - ./:/etc/kafka
+#
+#  mongo:
+#    image: mongo:4.2.5
+#    hostname: mongo
+#    container_name: mongo-demo
+#    networks:
+#      - sb_net
+#    ports:
+#      - "27017:27017"
+#    environment:
+#      MONGO_INITDB_ROOT_USERNAME: mongo-user
+#      MONGO_INITDB_ROOT_PASSWORD: mongo-pw
+#      MONGO_REPLICA_SET_NAME: my-replica-set
+#    command: --replSet my-replica-set --bind_ip_all
+#
+#  elastic:
+#    image: elasticsearch:7.6.2
+#    hostname: elastic
+#    container_name: elastic-demo
+#    networks:
+#      - sb_net
+#    ports:
+#      - "9200:9200"
+#      - "9300:9300"
+#    environment:
+#      discovery.type: single-node
+#
+#  schema-registry:
+#    image: confluentinc/cp-schema-registry:latest
+#    hostname: schema-registry
+#    container_name: schema-registry-demo
+#    networks:
+#      - sb_net
+#    depends_on:
+#      - zookeeper
+#      - kafka
+#    ports:
+#      - "8081:8081"
+#    environment:
+#      SCHEMA_REGISTRY_HOST_NAME: schema-registry
+#      SCHEMA_REGISTRY_KAFKASTORE_CONNECTION_URL: 'zookeeper:2181'
+#
+#  ksqldb-server:
+#    image: confluentinc/ksqldb-server:0.21.0
+#    hostname: ksqldb-server
+#    container_name: ksqldb-server-demo
+#    networks:
+#      - sb_net
+#    depends_on:
+#      - kafka
+#      - schema-registry
+#    ports:
+#      - "8088:8088"
+#    volumes:
+#      - "./confluent-hub-components/:/usr/share/kafka/plugins/"
+#    environment:
+#      KSQL_LISTENERS: "http://0.0.0.0:8088"
+#      KSQL_BOOTSTRAP_SERVERS: "kafka:9092"
+#      KSQL_KSQL_SCHEMA_REGISTRY_URL: "http://schema-registry:8081"
+#      KSQL_KSQL_LOGGING_PROCESSING_STREAM_AUTO_CREATE: "true"
+#      KSQL_KSQL_LOGGING_PROCESSING_TOPIC_AUTO_CREATE: "true"
+#      KSQL_CONNECT_GROUP_ID: "ksql-connect-cluster"
+#      KSQL_CONNECT_BOOTSTRAP_SERVERS: "kafka:9092"
+#      KSQL_CONNECT_KEY_CONVERTER: "org.apache.kafka.connect.storage.StringConverter"
+#      KSQL_CONNECT_VALUE_CONVERTER: "io.confluent.connect.avro.AvroConverter"
+#      KSQL_CONNECT_VALUE_CONVERTER_SCHEMA_REGISTRY_URL: "http://schema-registry:8081"
+#      KSQL_CONNECT_CONFIG_STORAGE_TOPIC: "_ksql-connect-configs"
+#      KSQL_CONNECT_OFFSET_STORAGE_TOPIC: "_ksql-connect-offsets"
+#      KSQL_CONNECT_STATUS_STORAGE_TOPIC: "_ksql-connect-statuses"
+#      KSQL_CONNECT_CONFIG_STORAGE_REPLICATION_FACTOR: 1
+#      KSQL_CONNECT_OFFSET_STORAGE_REPLICATION_FACTOR: 1
+#      KSQL_CONNECT_STATUS_STORAGE_REPLICATION_FACTOR: 1
+#      KSQL_CONNECT_PLUGIN_PATH: "/usr/share/kafka/plugins"
+#
+#  ksqldb-cli:
+#    image: confluentinc/ksqldb-cli:0.21.0
+#    container_name: ksqldb-cli-demo
+#    networks:
+#      - sb_net
+#    depends_on:
+#      - kafka
+#      - ksqldb-server
+#    entrypoint: /bin/sh
+#    tty: true
