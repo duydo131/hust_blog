@@ -1,30 +1,23 @@
 package com.learnspringboot.demo.controller;
 
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
-import java.util.stream.Collectors;
-
-import com.learnspringboot.demo.dto.JwtResponse;
+import com.learnspringboot.demo.dto.auth.JwtResponse;
 import com.learnspringboot.demo.dto.MessageResponse;
-import com.learnspringboot.demo.dto.SignupDTO;
-import com.learnspringboot.demo.dto.UserLoginDTO;
+import com.learnspringboot.demo.dto.auth.SignupDTO;
+import com.learnspringboot.demo.dto.auth.UserLoginDTO;
 import com.learnspringboot.demo.dto.mapper.UserMapper;
-import com.learnspringboot.demo.entity.Role;
 import com.learnspringboot.demo.entity.User;
-import com.learnspringboot.demo.security.JwtUtil;
+import com.learnspringboot.demo.security.jwt.JwtUtil;
 import com.learnspringboot.demo.security.UserPrincipal;
-import com.learnspringboot.demo.service.RoleService;
-import com.learnspringboot.demo.service.UserService;
+import com.learnspringboot.demo.service.db.RoleService;
+import com.learnspringboot.demo.service.db.UserService;
 
+import com.learnspringboot.demo.service.infra.ICreateUserUseCase;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
@@ -40,9 +33,6 @@ public class AuthController {
     private AuthenticationManager authenticationManager;
 
     @Autowired
-    private PasswordEncoder passwordEncoder;
-
-    @Autowired
     private JwtUtil jwtUtil;
 
     @Autowired
@@ -50,6 +40,9 @@ public class AuthController {
 
     @Autowired
     private RoleService roleService;
+
+    @Autowired
+    private ICreateUserUseCase createUserUseCase;
 
     @GetMapping("")
     public ResponseEntity<?> test(){
@@ -73,13 +66,12 @@ public class AuthController {
     }
 
     @PostMapping("/signup")
-    public ResponseEntity<?> registerUser(@Validated @RequestBody SignupDTO signup) {
+    public ResponseEntity<?> registerUser(@Validated @RequestBody SignupDTO signup) throws Exception {
         User user = userMapper.SignupDTOToUser(signup);
         user.setActive(true);
-        List<Role> roles = new ArrayList<>();
-        roles.add(roleService.findByName("ROLE_USER").orElse(null));
-        user.setRoles(roles);
+        user.setRole(roleService.findByName("ROLE_USER").orElseThrow(() -> new Exception("Role user not define")));
         userService.save(user);
+        createUserUseCase.additionalCreateUser(user);
         return ResponseEntity.ok(new MessageResponse("User Register successfully!"));
     }
 }

@@ -1,25 +1,22 @@
 package com.learnspringboot.demo.entity;
 
 import lombok.Data;
+import lombok.EqualsAndHashCode;
+import lombok.ToString;
 
 import javax.persistence.*;
 import javax.validation.constraints.NotNull;
-import java.util.Collection;
+import java.util.Set;
 
 @Data
 @Table(name = "users")
 @Entity
-public class User {
-
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+public class User extends BaseEntity{
 
     @Column(unique = true)
     @NotNull
     private String username;
 
-    @Column
     @NotNull
     private String password;
 
@@ -27,14 +24,15 @@ public class User {
     @NotNull
     private String email;
 
-    @Column
     @NotNull
     private boolean active = true;
 
-    @ManyToMany(fetch=FetchType.EAGER)
-    @JoinTable(name = "user_roles",
-            joinColumns = @JoinColumn(name = "user_id"),
-            inverseJoinColumns = @JoinColumn(name = "role_id")
-    )
-    private Collection<Role> roles;
+    @OneToMany(mappedBy="user", fetch = FetchType.EAGER)
+    @EqualsAndHashCode.Exclude
+    @ToString.Exclude
+    private Set<Permission> permission;
+
+    @ManyToOne
+    @JoinColumn(name = "role_id")
+    private Role role;
 }

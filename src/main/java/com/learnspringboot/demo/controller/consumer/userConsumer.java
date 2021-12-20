@@ -3,13 +3,12 @@ package com.learnspringboot.demo.controller.consumer;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.learnspringboot.demo.config.KafkaConfigConstant;
 import com.learnspringboot.demo.entity.User;
-import com.learnspringboot.demo.service.UserService;
+import com.learnspringboot.demo.service.db.UserService;
 import org.apache.kafka.clients.consumer.ConsumerRecord;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.kafka.annotation.KafkaListener;
-import org.springframework.stereotype.Component;
 
 //@Component
 public class userConsumer {

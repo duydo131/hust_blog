@@ -1,4 +1,4 @@
-package com.learnspringboot.demo.service;
+package com.learnspringboot.demo.service.db;
 
 import com.learnspringboot.demo.entity.User;
 import com.learnspringboot.demo.respository.UserRepository;

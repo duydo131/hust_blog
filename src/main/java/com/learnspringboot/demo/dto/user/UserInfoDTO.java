@@ -1,4 +1,4 @@
-package com.learnspringboot.demo.dto;
+package com.learnspringboot.demo.dto.user;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;

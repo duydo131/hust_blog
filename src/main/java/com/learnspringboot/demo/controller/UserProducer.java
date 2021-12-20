@@ -8,6 +8,8 @@ import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.UUID;
+
 //@RestController
 //@RequestMapping("producer/users")
 public class UserProducer {
@@ -27,8 +29,8 @@ public class UserProducer {
     }
 
     @PatchMapping("/{id}")
-    public String sendMessageUpdate(@PathVariable("id") Long id, @RequestBody User user) {
-        user.setId(id);
+    public String sendMessageUpdate(@PathVariable("id") UUID id, @RequestBody User user) {
+//        user.setId(id);
         try {
             kafkaTemplate.send(KafkaConfigConstant.TOPIC_UPDATE, user);
             return " message sent succuessfully";

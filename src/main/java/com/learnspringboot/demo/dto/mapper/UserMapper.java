@@ -1,7 +1,7 @@
 package com.learnspringboot.demo.dto.mapper;
 
-import com.learnspringboot.demo.dto.SignupDTO;
-import com.learnspringboot.demo.dto.UserInfoDTO;
+import com.learnspringboot.demo.dto.auth.SignupDTO;
+import com.learnspringboot.demo.dto.user.UserInfoDTO;
 import com.learnspringboot.demo.entity.User;
 import org.mapstruct.Mapper;
 

@@ -1,9 +1,9 @@
 package com.learnspringboot.demo.controller;
 
-import com.learnspringboot.demo.dto.UserInfoDTO;
+import com.learnspringboot.demo.dto.user.UserInfoDTO;
 import com.learnspringboot.demo.dto.mapper.UserMapper;
 import com.learnspringboot.demo.entity.User;
-import com.learnspringboot.demo.service.UserService;
+import com.learnspringboot.demo.service.db.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.*;
 import org.springframework.http.HttpStatus;

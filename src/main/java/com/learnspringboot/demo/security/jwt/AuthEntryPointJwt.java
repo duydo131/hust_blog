@@ -1,4 +1,4 @@
-package com.learnspringboot.demo.security;
+package com.learnspringboot.demo.security.jwt;
 
 import java.io.IOException;
 

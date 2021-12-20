@@ -3,7 +3,10 @@ package com.learnspringboot.demo.security;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
+import java.util.UUID;
 
+import com.learnspringboot.demo.entity.Permission;
+import com.learnspringboot.demo.entity.Role;
 import com.learnspringboot.demo.entity.User;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
@@ -26,10 +29,8 @@ public class UserPrincipal implements UserDetails{
     @Transactional
     public Collection<? extends GrantedAuthority> getAuthorities() {
         List<GrantedAuthority> authoriList = new ArrayList<>();
-        user.getRoles().forEach(p -> {
-            GrantedAuthority authory = new SimpleGrantedAuthority(p.getName());
-            authoriList.add(authory);
-        });
+        GrantedAuthority authory = new SimpleGrantedAuthority(user.getRole().getName());
+        authoriList.add(authory);
         return authoriList;
     }
 
@@ -43,7 +44,7 @@ public class UserPrincipal implements UserDetails{
         return user.getUsername();
     }
 
-    public Long getId(){
+    public UUID getId(){
         return user.getId();
     }
 
@@ -70,4 +71,14 @@ public class UserPrincipal implements UserDetails{
     public boolean isEnabled() {
         return user.isActive();
     }
+
+    @Transactional
+    public Collection<Permission> getPermission(){
+        return user.getPermission();
+    }
+
+    public Role getRole(){
+        return user.getRole();
+    }
+
 }
