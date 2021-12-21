@@ -81,4 +81,5 @@ public class UserPrincipal implements UserDetails{
         return user.getRole();
     }
 
+    public User getUser() {return user;}
 }

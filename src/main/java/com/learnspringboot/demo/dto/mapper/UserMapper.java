@@ -2,6 +2,7 @@ package com.learnspringboot.demo.dto.mapper;
 
 import com.learnspringboot.demo.dto.auth.SignupDTO;
 import com.learnspringboot.demo.dto.user.UserInfoDTO;
+import com.learnspringboot.demo.dto.user.UserSignupInfo;
 import com.learnspringboot.demo.entity.User;
 import org.mapstruct.Mapper;
 
@@ -9,4 +10,5 @@ import org.mapstruct.Mapper;
 public interface UserMapper {
     UserInfoDTO userToUserInfoDTO(User user);
     User SignupDTOToUser(SignupDTO signupDTO);
+    UserSignupInfo userToUserSignupInfo(User user);
 }

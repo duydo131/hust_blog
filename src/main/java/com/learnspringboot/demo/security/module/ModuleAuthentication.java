@@ -5,6 +5,8 @@ import com.learnspringboot.demo.security.UserPrincipal;
 import org.springframework.security.authentication.AbstractAuthenticationToken;
 
 import java.util.Collection;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Set;
 
 public class ModuleAuthentication extends AbstractAuthenticationToken {
@@ -45,6 +47,13 @@ public class ModuleAuthentication extends AbstractAuthenticationToken {
         // else user must have role USER
         if(action.equalsIgnoreCase("GET")) return true;
         if(!userPrincipal.getRole().getName().equalsIgnoreCase("ROLE_USER")) return false;
+
+        // except some module
+        Map<String, Object> exceptModule = new HashMap<>();
+        exceptModule.put("api/users/change-password", null);
+
+        if(exceptModule.containsKey(module)) return true;
+
         Set<Permission> permissions = (Set<Permission>) userPrincipal.getPermission();
         for(Permission permission: permissions){
             if(permission.getModule().equalsIgnoreCase(module) && permission.getAction().equalsIgnoreCase(action)){

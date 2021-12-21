@@ -126,6 +126,12 @@
             <scope>compile</scope>
         </dependency>
 
+		<dependency>
+			<groupId>org.flywaydb</groupId>
+			<artifactId>flyway-core</artifactId>
+			<version>5.0.6</version>
+		</dependency>
+
     </dependencies>
 
 	<build>

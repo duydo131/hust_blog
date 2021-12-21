@@ -42,12 +42,10 @@ public class AuthModuleFilter extends OncePerRequestFilter{
 
                 Authentication authResult = authenticationManager.authenticate(customAuthentication);
 
-                if (authResult.isAuthenticated()){
+                if (authResult.isAuthenticated())
                     SecurityContextHolder.getContext().setAuthentication(authResult);
-                    filterChain.doFilter(request, response);
-                }else{
+                else
                     response.setStatus(HttpServletResponse.SC_FORBIDDEN);
-                }
             }
         } catch (AuthenticationException authenticationException) {
             response.setStatus(HttpServletResponse.SC_FORBIDDEN);

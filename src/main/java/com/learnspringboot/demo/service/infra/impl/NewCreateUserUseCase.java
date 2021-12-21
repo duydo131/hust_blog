@@ -10,10 +10,12 @@ import org.springframework.stereotype.Component;
 import java.util.ArrayList;
 import java.util.List;
 
-@Component
-public class CreateUserUseCase implements ICreateUserUseCase {
-    @Autowired
+public class NewCreateUserUseCase implements ICreateUserUseCase {
     private PermissionService permissionService;
+
+    public NewCreateUserUseCase(PermissionService permissionService) {
+        this.permissionService = permissionService;
+    }
 
     @Override
     public void additionalCreateUser(User user) {
@@ -21,6 +23,6 @@ public class CreateUserUseCase implements ICreateUserUseCase {
 
         permissions.add(new Permission("/api/posts", "POST", user));
 
-        permissionService.saveAll(permissions);
+        permissionService.saveAllPerform(permissions);
     }
 }

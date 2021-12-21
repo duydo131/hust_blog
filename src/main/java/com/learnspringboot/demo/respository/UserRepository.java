@@ -1,6 +1,7 @@
 package com.learnspringboot.demo.respository;
 
 import java.util.Optional;
+import java.util.UUID;
 
 import com.learnspringboot.demo.entity.User;
 import org.springframework.data.domain.Page;
@@ -8,7 +9,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 
-public interface UserRepository extends JpaRepository<User, Long>{
+public interface UserRepository extends JpaRepository<User, UUID>{
     Optional<User> findByUsername(String username);
     boolean existsByUsername(String username);
     boolean existsByEmail(String email);

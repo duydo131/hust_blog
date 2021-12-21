@@ -6,6 +6,7 @@ import lombok.ToString;
 
 import javax.persistence.*;
 import javax.validation.constraints.NotNull;
+import javax.validation.constraints.Pattern;
 import java.util.Set;
 
 @Data
@@ -17,7 +18,10 @@ public class User extends BaseEntity{
     @NotNull
     private String username;
 
+    private String rawPassword = null;
+
     @NotNull
+    @Column(unique = true)
     private String password;
 
     @Column(unique = true)
@@ -31,6 +35,11 @@ public class User extends BaseEntity{
     @EqualsAndHashCode.Exclude
     @ToString.Exclude
     private Set<Permission> permission;
+
+    @OneToMany(mappedBy="user", fetch = FetchType.EAGER)
+    @EqualsAndHashCode.Exclude
+    @ToString.Exclude
+    private Set<Post> posts;
 
     @ManyToOne
     @JoinColumn(name = "role_id")
