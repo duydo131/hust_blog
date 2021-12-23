@@ -38,14 +38,14 @@ public class ModuleAuthentication extends AbstractAuthenticationToken {
     private boolean authenticate(){
         UserPrincipal userPrincipal = (UserPrincipal) principal;
 
+        if(action.equalsIgnoreCase("GET"))
+            return !(module.contains("/api/users") && userPrincipal == null);
+
         if(userPrincipal == null) return false;
 
         // check user is admin
         if(userPrincipal.getRole().getName().equalsIgnoreCase("ROLE_ADMIN")) return true;
 
-        // forward if method is GET
-        // else user must have role USER
-        if(action.equalsIgnoreCase("GET")) return true;
         if(!userPrincipal.getRole().getName().equalsIgnoreCase("ROLE_USER")) return false;
 
         // except some module

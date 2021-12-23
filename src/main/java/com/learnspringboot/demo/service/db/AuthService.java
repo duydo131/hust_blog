@@ -1,29 +1,26 @@
 package com.learnspringboot.demo.service.db;
 
-import com.learnspringboot.demo.config.Role;
-import com.learnspringboot.demo.dto.MessageResponse;
+import com.learnspringboot.demo.config.RoleEnum;
 import com.learnspringboot.demo.dto.auth.JwtResponse;
 import com.learnspringboot.demo.dto.auth.SignupDTO;
 import com.learnspringboot.demo.dto.auth.UserLoginDTO;
 import com.learnspringboot.demo.dto.mapper.UserMapper;
-import com.learnspringboot.demo.dto.user.UserSignupInfo;
+import com.learnspringboot.demo.dto.user.UserSignupInfoDTO;
 import com.learnspringboot.demo.entity.User;
+import com.learnspringboot.demo.exception.custom_exception.MyException;
 import com.learnspringboot.demo.security.UserPrincipal;
 import com.learnspringboot.demo.security.jwt.JwtUtil;
 import com.learnspringboot.demo.service.infra.ICreateUserUseCase;
 import com.learnspringboot.demo.service.infra.impl.NewCreateUserUseCase;
-import com.learnspringboot.demo.service.infra.impl.NoActionCreateUseCase;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
-import org.springframework.validation.annotation.Validated;
-import org.springframework.web.bind.annotation.RequestBody;
 
 import javax.transaction.Transactional;
+import java.util.List;
 
 @Service
 public class AuthService {
@@ -44,6 +41,9 @@ public class AuthService {
     private PermissionService permissionService;
 
     @Autowired
+    private SlugService slugService;
+
+    @Autowired
     private JwtUtil jwtUtil;
 
     public JwtResponse authenticate(UserLoginDTO userLogin) {
@@ -62,23 +62,22 @@ public class AuthService {
     }
 
     @Transactional
-    public UserSignupInfo registerUser(SignupDTO signup) throws Exception {
+    public UserSignupInfoDTO registerUser(SignupDTO signup) throws Exception {
         User user = userMapper.SignupDTOToUser(signup);
         user.setActive(true);
         user.setRawPassword(signup.getPassword());
-        user.setRole(roleService.findByName(Role.ROLE_USER.getName()).orElseThrow(() -> new Exception("Role user not define")));
+        user.setRole(roleService.findByName(RoleEnum.ROLE_USER.getName()).orElseThrow(
+                () -> new MyException("Role user not define"))
+        );
         userService.save(user);
         ICreateUserUseCase createUserUseCase = getCreateUseCase(signup.getSlug());
-        createUserUseCase.additionalCreateUser(user);
+        createUserUseCase.additionalCreateUser(user, signup.getSlug());
         return userMapper.userToUserSignupInfo(user);
     }
 
-    private ICreateUserUseCase getCreateUseCase(String slug){
-        switch (slug){
-            case "tin-tuc":
-                return new NewCreateUserUseCase(permissionService);
-            default:
-                return new NoActionCreateUseCase();
-        }
+    private ICreateUserUseCase getCreateUseCase(String slug) throws Exception {
+        List<String> slugs = slugService.findAllSlugTitle();
+        if (slugs.contains(slug)) return new NewCreateUserUseCase(permissionService, slugService);
+        throw new MyException(String.format("slug %s not define.", slug));
     }
 }

@@ -16,6 +16,6 @@ import java.util.UUID;
 
 public interface PostRepository extends JpaRepository<Post, UUID> {
 
-//    @Query("SELECT u FROM Post u INNER JOIN Slug s ON s.id = u.slug_id WHERE s.title like ?1")
     Page<Post> findPostBySlug(Slug slug, Pageable pageable);
+    Page<Post> findPostBySlugAndPublished(Slug slug, Boolean published, Pageable pageable);
 }

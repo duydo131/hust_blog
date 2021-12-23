@@ -2,8 +2,8 @@ package com.learnspringboot.demo.security;
 
 import com.learnspringboot.demo.security.jwt.AuthEntryPointJwt;
 import com.learnspringboot.demo.security.jwt.AuthTokenFilter;
-import com.learnspringboot.demo.security.module.AuthModuleFilter;
-import com.learnspringboot.demo.security.module.ModuleAuthenticationProvider;
+//import com.learnspringboot.demo.security.module.AuthModuleFilter;
+//import com.learnspringboot.demo.security.module.ModuleAuthenticationProvider;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -32,23 +32,14 @@ public class SpringSecurity extends WebSecurityConfigurerAdapter {
     @Autowired
     private AuthEntryPointJwt unauthorizedHandler;
 
-    @Autowired
-    private ModuleAuthenticationProvider moduleAuthenticationProvider;
-
     @Bean
     public AuthTokenFilter authenticationJwtTokenFilter() {
         return new AuthTokenFilter();
     }
 
-    @Bean
-    public AuthModuleFilter authenticationMyCustomFilter() {
-        return new AuthModuleFilter();
-    }
-
     @Override
     protected void configure(AuthenticationManagerBuilder auth) throws Exception {
         auth.userDetailsService(userDetailsService).passwordEncoder(passwordEncoder());
-        auth.authenticationProvider(moduleAuthenticationProvider);
     }
 
     @Bean
@@ -74,7 +65,6 @@ public class SpringSecurity extends WebSecurityConfigurerAdapter {
             .rememberMe().key("remember_token").tokenValiditySeconds(86400)
         ;
         http.addFilterBefore(authenticationJwtTokenFilter(), UsernamePasswordAuthenticationFilter.class);
-        http.addFilterAfter(authenticationMyCustomFilter(), UsernamePasswordAuthenticationFilter.class);
     }
 
     @Bean

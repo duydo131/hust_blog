@@ -1,8 +1,6 @@
 package com.learnspringboot.demo.entity;
 
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
 import javax.persistence.*;
 import javax.validation.constraints.NotNull;
@@ -13,6 +11,8 @@ import java.util.UUID;
 @Entity
 @NoArgsConstructor
 @AllArgsConstructor
+@EqualsAndHashCode(exclude="post")
+@ToString(exclude = "post")
 public class Slug extends BaseEntity{
     @OneToOne(mappedBy = "slug")
     private Post post;

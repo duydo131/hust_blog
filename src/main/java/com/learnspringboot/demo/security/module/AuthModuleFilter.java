@@ -32,25 +32,25 @@ public class AuthModuleFilter extends OncePerRequestFilter{
             throws ServletException, IOException {
         try{
             UserPrincipal userPrincipal = (UserPrincipal)request.getAttribute(Contants.PRINCIPAL);
+            ModuleAuthentication customAuthentication = new ModuleAuthentication(
+                    userPrincipal,
+                    request.getServletPath(),
+                    request.getMethod()
+            );
 
-            if(userPrincipal != null) {
-                ModuleAuthentication customAuthentication = new ModuleAuthentication(
-                        userPrincipal,
-                        request.getServletPath(),
-                        request.getMethod()
-                );
+            Authentication authResult = authenticationManager.authenticate(customAuthentication);
 
-                Authentication authResult = authenticationManager.authenticate(customAuthentication);
-
-                if (authResult.isAuthenticated())
-                    SecurityContextHolder.getContext().setAuthentication(authResult);
-                else
-                    response.setStatus(HttpServletResponse.SC_FORBIDDEN);
+            if (authResult.isAuthenticated()){
+                SecurityContextHolder.getContext().setAuthentication(authResult);
+                filterChain.doFilter(request, response);
             }
+            else{
+                response.setStatus(HttpServletResponse.SC_FORBIDDEN);
+            }
+
         } catch (AuthenticationException authenticationException) {
             response.setStatus(HttpServletResponse.SC_FORBIDDEN);
         }
-        filterChain.doFilter(request, response);
     }
 
 }

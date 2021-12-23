@@ -10,7 +10,7 @@ import javax.validation.constraints.NotNull;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class ChangePasswordInfoRequest {
+public class ChangePasswordInfoRequestDTO {
 
     @NotNull
     @JsonAlias("old-password")

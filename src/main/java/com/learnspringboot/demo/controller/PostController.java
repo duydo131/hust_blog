@@ -1,20 +1,17 @@
 package com.learnspringboot.demo.controller;
 
-import com.learnspringboot.demo.dto.mapper.PostMapper;
-import com.learnspringboot.demo.dto.post.PostDTO;
-import com.learnspringboot.demo.dto.user.UserInfoDTO;
-import com.learnspringboot.demo.entity.Post;
-import com.learnspringboot.demo.entity.User;
+import com.learnspringboot.demo.dto.post.PostRequestDTO;
+import com.learnspringboot.demo.dto.post.PostUpdateRequestDTO;
 import com.learnspringboot.demo.service.db.PostService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.*;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.List;
-import java.util.stream.Collectors;
+import javax.servlet.http.HttpServletRequest;
+import java.util.UUID;
 
 @RestController
 @CrossOrigin(origins = "*", maxAge = 3600)
@@ -24,25 +21,53 @@ public class PostController {
     @Autowired
     private PostService postService;
 
-    @Autowired
-    private PostMapper postMapper;
-
-    @GetMapping("/{slug}")
-    public ResponseEntity<Page<?>> listPost(@PathVariable("slug") String slug,
+    @GetMapping("/all/{slug}")
+    public ResponseEntity<?> listPost(
+            HttpServletRequest request,
+            @PathVariable("slug") String slug,
             @RequestParam(name = "page", required = false, defaultValue = "0") Integer page,
             @RequestParam(name = "size", required = false, defaultValue = "10") Integer size,
             @RequestParam(name = "sort", required = false, defaultValue = "ASC") String sort) throws Exception {
 
         Sort sortable = Sort.by("id").ascending();
+        if (sort.equals("DESC")) sortable = Sort.by("id").descending();
 
-        if (sort.equals("DESC")) {
-            sortable = Sort.by("id").descending();
-        }
         Pageable pageable = PageRequest.of(page, size, sortable);
+        return new ResponseEntity<>(postService.findPostBySlug(request, pageable, slug), HttpStatus.OK);
+    }
 
-        Page<Post> posts = postService.findPostBySlug(pageable, slug);
+    @GetMapping("/{id}")
+    public ResponseEntity<?> getPost(@PathVariable("id") UUID id) throws Exception {
+        return new ResponseEntity<>(postService.findPostById(id), HttpStatus.OK);
+    }
 
-        List<PostDTO> postResponse = posts.stream().map(postMapper::mapToPostDTO).collect(Collectors.toList());
-        return new ResponseEntity<>(new PageImpl<>(postResponse), HttpStatus.OK);
+    @PostMapping("/{slug}")
+    public ResponseEntity<?> additionalPost(
+            HttpServletRequest request,
+            @PathVariable("slug") String slug,
+            @Validated @RequestBody PostRequestDTO postRequestDTO) throws Exception {
+        return new ResponseEntity<>(postService.save(request, postRequestDTO, slug), HttpStatus.CREATED);
+    }
+
+    @PatchMapping("/{id}")
+    public ResponseEntity<?> updatePost(
+            HttpServletRequest request,
+            @PathVariable UUID id,
+            @RequestBody PostUpdateRequestDTO postUpdateRequestDTO) throws Exception {
+        return new ResponseEntity<>(postService.updatePost(request, id, postUpdateRequestDTO), HttpStatus.OK);
+    }
+
+    @GetMapping("/all/my")
+    public ResponseEntity<?> myPost(
+            HttpServletRequest request,
+            @RequestParam(name = "page", required = false, defaultValue = "0") Integer page,
+            @RequestParam(name = "size", required = false, defaultValue = "10") Integer size,
+            @RequestParam(name = "sort", required = false, defaultValue = "ASC") String sort) throws Exception {
+
+        Sort sortable = Sort.by("id").ascending();
+        if (sort.equals("DESC")) sortable = Sort.by("id").descending();
+
+        Pageable pageable = PageRequest.of(page, size, sortable);
+        return new ResponseEntity<>(postService.getMyPost(request, pageable), HttpStatus.OK);
     }
 }

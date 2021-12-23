@@ -1,23 +1,23 @@
 package com.learnspringboot.demo.service.db;
 
+import com.learnspringboot.demo.config.Contants;
+import com.learnspringboot.demo.config.RoleEnum;
 import com.learnspringboot.demo.dto.mapper.UserMapper;
-import com.learnspringboot.demo.dto.user.ChangePasswordInfoRequest;
+import com.learnspringboot.demo.dto.user.ChangePasswordInfoRequestDTO;
 import com.learnspringboot.demo.dto.user.UserInfoDTO;
-import com.learnspringboot.demo.entity.Role;
 import com.learnspringboot.demo.entity.User;
+import com.learnspringboot.demo.exception.custom_exception.MyException;
+import com.learnspringboot.demo.exception.custom_exception.NotAUserException;
 import com.learnspringboot.demo.respository.UserRepository;
+import com.learnspringboot.demo.security.UserPrincipal;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
-import org.springframework.validation.annotation.Validated;
 
-import java.util.List;
-import java.util.Optional;
-import java.util.UUID;
+import javax.servlet.http.HttpServletRequest;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Service
@@ -68,23 +68,34 @@ public class UserService {
         return userRepository.findUser(pageable);
     }
 
-    public void changePassword(User user, ChangePasswordInfoRequest info) throws Exception {
+    public UserInfoDTO changePassword(
+            HttpServletRequest request,
+            ChangePasswordInfoRequestDTO info) throws Exception {
+
+        User user = ((UserPrincipal)request.getAttribute(Contants.PRINCIPAL)).getUser();
+        if(user == null) throw new Exception("Server Error");
+
         if(!passwordEncoder.matches(info.getOldPassword(), user.getPassword()))
-            throw new Exception("Password is incorrect.");
+            throw new Exception("Password incorrect.");
 
         if(!info.checkRepeatPassword())
-            throw new Exception("Password and repeat password is not valid.");
+            throw new Exception("Password and repeat password is invalid.");
 
         user.setRawPassword(null);
         user.setPassword(info.getNewPassword1());
         save(user);
+
+        return userMapper.userToUserInfoDTO(user);
     }
 
-    public Object getUserDetail(UUID id, User userRequest) throws Exception {
+    public Object getUserDetail(HttpServletRequest request, UUID id) throws Exception {
+        User userRequest = ((UserPrincipal)request.getAttribute(Contants.PRINCIPAL)).getUser();
+        if(userRequest == null) throw new NotAUserException();
+
         User user = findById(id).orElseThrow(
-            () -> new Exception(String.format("User id %s not found", id.toString()))
+            () -> new MyException(String.format("User id %s not found", id.toString()))
         );
-        if(userRequest.getRole().getName().equals(com.learnspringboot.demo.config.Role.ROLE_ADMIN.getName()))
+        if(userRequest.getRole().getName().equals(RoleEnum.ROLE_ADMIN.getName()))
             return userMapper.userToUserSignupInfo(user);
         else {
             if(!userRequest.getId().equals(id))
@@ -95,8 +106,14 @@ public class UserService {
         }
     }
 
-    public List<UserInfoDTO> allUser(Pageable pageable){
-        Page<User> users = findUser(pageable);
-        return users.stream().map(userMapper::userToUserInfoDTO).collect(Collectors.toList());
+    public List<UserInfoDTO> allUser(HttpServletRequest request, Pageable pageable) throws Exception {
+        User userRequest = ((UserPrincipal)request.getAttribute(Contants.PRINCIPAL)).getUser();
+        if(userRequest == null) return new ArrayList<>();
+
+        if(userRequest.getRole().getName().equals(RoleEnum.ROLE_ADMIN.getName())){
+            Page<User> users = findUser(pageable);
+            return users.stream().map(userMapper::userToUserInfoDTO).collect(Collectors.toList());
+        }
+        return new ArrayList<>(Arrays.asList(userMapper.userToUserInfoDTO(userRequest)));
     }
 }

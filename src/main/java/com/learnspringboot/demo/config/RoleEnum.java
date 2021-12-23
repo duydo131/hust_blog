@@ -1,12 +1,12 @@
 package com.learnspringboot.demo.config;
 
-public enum Role {
+public enum RoleEnum {
     ROLE_ADMIN("ROLE_ADMIN"),
     ROLE_USER("ROLE_USER");
 
     private final String name;
 
-    Role(String name) {
+    RoleEnum(String name) {
         this.name = name;
     }
 

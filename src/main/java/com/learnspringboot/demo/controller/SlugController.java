@@ -1,12 +1,10 @@
 package com.learnspringboot.demo.controller;
 
-import com.learnspringboot.demo.dto.slug.SlugAdditionalRequest;
+import com.learnspringboot.demo.dto.slug.SlugAdditionalRequestDTO;
 import com.learnspringboot.demo.service.db.SlugService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.access.annotation.Secured;
-import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
@@ -29,7 +27,7 @@ public class SlugController {
 
     @PostMapping("")
     public ResponseEntity<Collection<?>> additionalSlugs(
-            @Validated  @RequestBody SlugAdditionalRequest slugAdditional) throws Exception {
+            @Validated  @RequestBody SlugAdditionalRequestDTO slugAdditional) throws Exception {
         return new ResponseEntity<>(slugService.save(slugAdditional), HttpStatus.OK);
     }
 }

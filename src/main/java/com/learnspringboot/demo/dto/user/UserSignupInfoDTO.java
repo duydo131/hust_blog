@@ -7,6 +7,6 @@ import lombok.NoArgsConstructor;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-public class UserSignupInfo extends UserInfoDTO{
+public class UserSignupInfoDTO extends UserInfoDTO{
     private String rawPassword;
 }
