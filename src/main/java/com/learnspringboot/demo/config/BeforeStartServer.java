@@ -59,7 +59,6 @@ public class BeforeStartServer implements CommandLineRunner {
 
         User user = new User();
         user.setEmail(email);
-        user.setRawPassword(password);
         user.setPassword(password);
         user.setUsername(username);
         user.setRole(roleService.findByName(RoleEnum.ROLE_ADMIN.getName()).orElseThrow(

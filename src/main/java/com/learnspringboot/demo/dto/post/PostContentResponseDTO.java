@@ -1,5 +1,6 @@
 package com.learnspringboot.demo.dto.post;
 
+import com.learnspringboot.demo.dto.user.UserPostInfoDTO;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 
@@ -10,7 +11,7 @@ import java.util.UUID;
 @AllArgsConstructor
 public class PostContentResponseDTO {
     private UUID id;
-    private UUID userId;
+    private UserPostInfoDTO user;
     private String title;
     private Boolean published;
     private Date publishAt;
@@ -18,4 +19,5 @@ public class PostContentResponseDTO {
     private String content;
     private Date createAt;
     private Date updateAt;
+    private String image;
 }

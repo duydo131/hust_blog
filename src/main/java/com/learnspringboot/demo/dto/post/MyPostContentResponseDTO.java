@@ -19,4 +19,5 @@ public class MyPostContentResponseDTO {
     private Date createAt;
     private Date updateAt;
     private String slug;
+    private String image;
 }

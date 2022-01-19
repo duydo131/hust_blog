@@ -1,10 +1,7 @@
 package com.learnspringboot.demo.respository;
 
-import com.learnspringboot.demo.entity.Post;
 import com.learnspringboot.demo.entity.Slug;
-import com.learnspringboot.demo.entity.User;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Pageable;
+import org.jetbrains.annotations.NotNull;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 
@@ -19,4 +16,8 @@ public interface SlugRepository extends JpaRepository<Slug, UUID> {
 
     Optional<Slug> findByTitle(String title);
     List<Slug> findByParent(Slug slug);
+
+    @Query("select s from Slug s")
+    @NotNull
+    List<Slug> findAll();
 }

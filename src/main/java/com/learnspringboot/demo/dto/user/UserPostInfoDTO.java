@@ -9,10 +9,8 @@ import java.util.UUID;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-public class UserInfoDTO {
+public class UserPostInfoDTO {
     private UUID id;
     private String username;
     private String email;
-    private String rawPassword;
-    private Integer numPosts = 1;
 }

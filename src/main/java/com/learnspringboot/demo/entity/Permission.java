@@ -6,6 +6,7 @@ import lombok.NoArgsConstructor;
 
 import javax.persistence.*;
 import javax.validation.constraints.NotNull;
+import java.util.UUID;
 
 @Data
 @Table(name = "permissions")
@@ -24,4 +25,7 @@ public class Permission extends BaseEntity{
     @JoinColumn(name = "user_id")
     private User user;
 
+    private String slug;
+
+    private UUID slugId;
 }

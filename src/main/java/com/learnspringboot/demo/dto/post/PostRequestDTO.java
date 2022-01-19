@@ -22,4 +22,6 @@ public class PostRequestDTO {
     private String content;
 
     private Boolean published = false;
+
+    private String image;
 }

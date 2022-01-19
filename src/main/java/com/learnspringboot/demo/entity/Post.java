@@ -33,6 +33,7 @@ public class Post extends BaseEntity{
     private String shortDescription;
 
     @NotNull
+    @Column(columnDefinition = "TEXT")
     private String content;
 
     @Temporal(TemporalType.TIMESTAMP)
@@ -44,4 +45,6 @@ public class Post extends BaseEntity{
     @OneToOne(cascade = CascadeType.ALL)
     @JoinColumn(name = "slug_id", referencedColumnName = "id")
     private Slug slug;
+
+    private String image;
 }

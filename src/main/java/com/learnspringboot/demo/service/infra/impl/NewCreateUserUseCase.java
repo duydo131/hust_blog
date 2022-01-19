@@ -30,7 +30,7 @@ public class NewCreateUserUseCase implements ICreateUserUseCase {
         List<Permission> permissions = new ArrayList<>();
 
         for (Slug s: children) {
-            permissions.add(new Permission("/api/posts/" + s.getTitle(), "POST", user));
+            permissions.add(new Permission("/api/posts/" + s.getTitle(), "POST", user, s.getTitle(), s.getId()));
         }
         permissionService.saveAllPerform(permissions);
     }

@@ -14,6 +14,7 @@ import com.learnspringboot.demo.service.infra.ICreateUserUseCase;
 import com.learnspringboot.demo.service.infra.impl.NewCreateUserUseCase;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -61,8 +62,10 @@ public class AuthService {
         return new JwtResponse(jwt, userDetail.getId(), userDetail.getUsername(), userDetail.getEmail());
     }
 
-    @Transactional
+    @Transactional(rollbackOn = Exception.class)
     public UserSignupInfoDTO registerUser(SignupDTO signup) throws Exception {
+        if(userService.existsByEmail(signup.getEmail()))
+            throw new BadCredentialsException("Email was use");
         User user = userMapper.SignupDTOToUser(signup);
         user.setActive(true);
         user.setRawPassword(signup.getPassword());

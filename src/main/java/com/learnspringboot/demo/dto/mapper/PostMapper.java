@@ -4,6 +4,8 @@ import com.learnspringboot.demo.dto.post.MyPostContentResponseDTO;
 import com.learnspringboot.demo.dto.post.PostContentResponseDTO;
 import com.learnspringboot.demo.dto.post.PostRequestDTO;
 import com.learnspringboot.demo.dto.post.PostUpdateRequestDTO;
+import com.learnspringboot.demo.dto.user.UserInfoDTO;
+import com.learnspringboot.demo.dto.user.UserPostInfoDTO;
 import com.learnspringboot.demo.entity.Post;
 import com.learnspringboot.demo.entity.Slug;
 import com.learnspringboot.demo.entity.User;
@@ -13,7 +15,7 @@ import java.util.UUID;
 
 @Mapper
 public interface PostMapper {
-    @Mapping(source = "user", target = "userId", qualifiedByName = "getUserId")
+    @Mapping(source = "user", target = "user", qualifiedByName = "getUser")
     PostContentResponseDTO mapToPostContentDTO(Post post);
 
     Post mapToPost(PostRequestDTO post);
@@ -24,9 +26,14 @@ public interface PostMapper {
     @BeanMapping(nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE)
     void updatePostFromPostUpdateRequestDTO(PostUpdateRequestDTO dto, @MappingTarget Post post);
 
-    @Named("getUserId")
-    public static UUID getUserId(User user) {
-        return user.getId();
+    @Named("getUser")
+    public static UserPostInfoDTO getUserId(User user) {
+        UserPostInfoDTO userPostInfoDTO = new UserPostInfoDTO(
+                                                    user.getId(),
+                                                    user.getUsername(),
+                                                    user.getEmail()
+                                                );
+        return userPostInfoDTO;
     }
 
     @Named("getTitle")

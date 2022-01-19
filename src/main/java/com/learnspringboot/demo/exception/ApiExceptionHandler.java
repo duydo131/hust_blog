@@ -3,6 +3,7 @@ package com.learnspringboot.demo.exception;
 import com.learnspringboot.demo.dto.MessageResponse;
 import com.learnspringboot.demo.exception.custom_exception.MyException;
 import com.learnspringboot.demo.exception.custom_exception.NotAUserException;
+import com.learnspringboot.demo.exception.custom_exception.NotPermissionException;
 import org.jetbrains.annotations.NotNull;
 import org.springframework.http.HttpStatus;
 
@@ -31,10 +32,10 @@ public class ApiExceptionHandler {
     @ExceptionHandler(value = BadCredentialsException.class)
     @ResponseStatus(value = HttpStatus.BAD_REQUEST)
     public MessageResponse handleBadCredentialsException(@NotNull Exception ex, WebRequest request){
-        return new MessageResponse("User not found.");
+        return new MessageResponse(ex.getMessage());
     }
 
-    @ExceptionHandler(value = NotAUserException.class)
+    @ExceptionHandler(value = {NotAUserException.class, NotPermissionException.class})
     @ResponseStatus(value = HttpStatus.FORBIDDEN)
     public MessageResponse handleNotAUserException(@NotNull Exception ex, WebRequest request){
         return new MessageResponse(ex.getMessage());

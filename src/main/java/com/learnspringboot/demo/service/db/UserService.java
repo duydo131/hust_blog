@@ -8,11 +8,13 @@ import com.learnspringboot.demo.dto.user.UserInfoDTO;
 import com.learnspringboot.demo.entity.User;
 import com.learnspringboot.demo.exception.custom_exception.MyException;
 import com.learnspringboot.demo.exception.custom_exception.NotAUserException;
+import com.learnspringboot.demo.respository.PostRepository;
 import com.learnspringboot.demo.respository.UserRepository;
 import com.learnspringboot.demo.security.UserPrincipal;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -31,6 +33,9 @@ public class UserService {
 
     @Autowired
     private UserMapper userMapper;
+
+    @Autowired
+    private PostRepository postRepository;
 
     public Optional<User> findByUsername(String username) {
         return userRepository.findByUsername(username);
@@ -73,13 +78,13 @@ public class UserService {
             ChangePasswordInfoRequestDTO info) throws Exception {
 
         User user = ((UserPrincipal)request.getAttribute(Contants.PRINCIPAL)).getUser();
-        if(user == null) throw new Exception("Server Error");
+        if(user == null) throw new BadCredentialsException("Server Error");
 
         if(!passwordEncoder.matches(info.getOldPassword(), user.getPassword()))
-            throw new Exception("Password incorrect.");
+            throw new BadCredentialsException("Password incorrect.");
 
         if(!info.checkRepeatPassword())
-            throw new Exception("Password and repeat password is invalid.");
+            throw new BadCredentialsException("Password and repeat password is invalid.");
 
         user.setRawPassword(null);
         user.setPassword(info.getNewPassword1());
@@ -110,10 +115,22 @@ public class UserService {
         User userRequest = ((UserPrincipal)request.getAttribute(Contants.PRINCIPAL)).getUser();
         if(userRequest == null) return new ArrayList<>();
 
+        List<UserInfoDTO> userInfoDTOS = new ArrayList<>();
         if(userRequest.getRole().getName().equals(RoleEnum.ROLE_ADMIN.getName())){
             Page<User> users = findUser(pageable);
-            return users.stream().map(userMapper::userToUserInfoDTO).collect(Collectors.toList());
+            for(User user: users){
+                UserInfoDTO userInfoDTO = userMapper.userToUserInfoDTO(user);
+                Integer numberOfPosts = postRepository.countPostByUserId(user.getId());
+                userInfoDTO.setNumPosts(numberOfPosts);
+                userInfoDTOS.add(userInfoDTO);
+            }
+            return userInfoDTOS;
+        }else{
+            UserInfoDTO userInfoDTO = userMapper.userToUserInfoDTO(userRequest);
+            Integer numberOfPosts = postRepository.countPostByUserId(userRequest.getId());
+            userInfoDTO.setNumPosts(numberOfPosts);
+            userInfoDTOS.add(userInfoDTO);
         }
-        return new ArrayList<>(Arrays.asList(userMapper.userToUserInfoDTO(userRequest)));
+        return userInfoDTOS;
     }
 }

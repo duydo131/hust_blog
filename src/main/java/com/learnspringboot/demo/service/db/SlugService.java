@@ -1,13 +1,21 @@
 package com.learnspringboot.demo.service.db;
 
+import com.learnspringboot.demo.config.Contants;
 import com.learnspringboot.demo.dto.mapper.SlugMapper;
 import com.learnspringboot.demo.dto.slug.SlugAdditionalRequestDTO;
+import com.learnspringboot.demo.dto.slug.SlugResponseInfomationDTO;
+import com.learnspringboot.demo.entity.Permission;
 import com.learnspringboot.demo.entity.Slug;
+import com.learnspringboot.demo.entity.User;
 import com.learnspringboot.demo.exception.custom_exception.MyException;
 import com.learnspringboot.demo.respository.SlugRepository;
+import com.learnspringboot.demo.security.UserPrincipal;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.access.AccessDeniedException;
+import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.stereotype.Service;
 
+import javax.servlet.http.HttpServletRequest;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -25,7 +33,6 @@ public class SlugService {
     public List<Slug> findByParent(Slug slug){
         return slugRepository.findByParent(slug);
     }
-
 
     public List<String> findAllSlugTitle(){
         return slugRepository.findAllTitle();
@@ -52,13 +59,18 @@ public class SlugService {
         return getAllParent(slug).stream().map(slugMapper::mapToSlugResponseDTO).collect(Collectors.toList());
     }
 
-    public Collection<Slug> getAllParent(Slug slug){
+    public List<Slug> getAllParent(Slug slug){
         List<Slug> slugParent = new ArrayList<>();
         while(slug != null){
             slugParent.add(slug);
             slug = slug.getParent();
         }
         return slugParent;
+    }
+
+    public List<Slug> getAllParent(String slugStr) throws Exception {
+        Slug slug = findByTitle(slugStr);
+        return getAllParent(slug);
     }
 
     public List<Slug> getAllChild(Slug slug){
@@ -79,6 +91,55 @@ public class SlugService {
     }
 
     public Slug findByTitle(String title) throws Exception {
-        return slugRepository.findByTitle(title).orElseThrow(() -> new MyException("Slug not define"));
+        return slugRepository.findByTitle(title).orElseThrow(
+                () -> new MyException(String.format("Slug %s not define", title))
+        );
+    }
+
+    public List<?> getMySlug(HttpServletRequest request){
+        UserPrincipal userPrincipal = ((UserPrincipal)request.getAttribute(Contants.PRINCIPAL));
+        if(userPrincipal == null)
+            throw new AccessDeniedException("You not permissions");
+        User user = userPrincipal.getUser();
+        if(user == null)
+            throw new AccessDeniedException("You not permissions");
+
+        if(user.getRole().getName().equals("ROLE_NAME")){
+            return slugRepository.findAll().stream().map(slugMapper::toSlugResponseInfomationDto).collect(Collectors.toList());
+        }
+        List<SlugResponseInfomationDTO> slugs = new ArrayList<>();
+        Set<Permission> permissions = user.getPermission();
+        for(Permission permission: permissions){
+            slugs.add(new SlugResponseInfomationDTO(permission.getSlugId(), null, permission.getSlug()));
+        }
+        return slugs;
+    }
+
+    public List<?> getSlugs(String slug, String type) throws Exception {
+        List<Slug> slugList = null;
+        if(type.equals("CHILDREN")) {
+            slugList = getAllChild(slug);
+            slugList.remove(0);
+        }
+        else if(type.equals("PARENT")) slugList = getAllParent(slug);
+        else throw new BadCredentialsException(String.format("Type %s not exists!", type));
+        List<SlugResponseInfomationDTO> slugs = new ArrayList<>();
+        for(Slug s: slugList){
+            slugs.add(slugMapper.toSlugResponseInfomationDto(s));
+        }
+        return slugs;
+    }
+
+    public List<?> getSlugStatisticWithParent(String parentTitle) throws Exception {
+        Slug parent = findByTitle(parentTitle);
+        List<Slug> slugs = new ArrayList<>();
+        slugs.add(parent);
+        slugs.addAll(findByParent(parent));
+        return slugs.stream().map(slugMapper::toSlugResponseInfomationDto).collect(Collectors.toList());
+    }
+
+    public List<Slug> getSlugStatisticWithoutParent(String parentTitle) throws Exception {
+        Slug parent = findByTitle(parentTitle);
+        return new ArrayList<>(findByParent(parent));
     }
 }
